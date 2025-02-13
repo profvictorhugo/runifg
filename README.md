@@ -29,7 +29,7 @@ O **RunIFG** é um sistema web desenvolvido para o gerenciamento de corridas de 
 
 1️⃣ Clone este repositório:  
 ```bash
-git clone https://github.com/usuario/RunIFG.git
+git clone https://github.com/profvictorhugo/RunIFG.git
 ```
 ---
 
