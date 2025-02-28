@@ -1,7 +1,6 @@
 from flask import Blueprint,  jsonify
 from db import mysql
-import MySQLdb.cursors
-
+import pymysql.cursors
 
 classificacoes_bp = Blueprint('classificacoes', __name__)
 
@@ -9,7 +8,7 @@ classificacoes_bp = Blueprint('classificacoes', __name__)
 @classificacoes_bp.route('/classificacao/geral/<int:corrida_id>', methods=['GET'])
 def get_classificacao_geral(corrida_id):
     try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
 
         cursor.execute("""
             SELECT i.atleta_id, a.nome, a.sexo, c.prova_id, p.nome AS prova_nome, i.numero, TIME_FORMAT(i.hora_chegada, '%%H:%%i:%%s') as hora_chegada,
@@ -64,7 +63,7 @@ def get_classificacao_geral(corrida_id):
 @classificacoes_bp.route('/classificacao/por_categoria/<int:corrida_id>', methods=['GET'])
 def get_classificacao_por_categoria(corrida_id):
     try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
 
         cursor.execute("""
             SELECT i.atleta_id, a.nome, a.sexo, i.numero, 

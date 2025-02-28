@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from db import mysql
-import MySQLdb.cursors
-import pymysql
+import pymysql.cursors
 
 atleta_bp = Blueprint('atleta', __name__)
 
@@ -34,7 +33,7 @@ def createAtleta():
 def getAll():
 
     try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta")
         atletas = cursor.fetchall()
         cursor.close()
@@ -46,7 +45,7 @@ def getAll():
 def getById(id):
 
     try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE id = %s", (id,))
         atleta = cursor.fetchone()
         cursor.close()
@@ -62,7 +61,7 @@ def getById(id):
 def getByCpf(cpf):
 
     try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE cpf = %s", (cpf,))
         atleta = cursor.fetchone()
         cursor.close()
