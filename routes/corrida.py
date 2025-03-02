@@ -7,7 +7,7 @@ corrida_bp = Blueprint('corrida', __name__)
 @corrida_bp.route('/corrida/getAll', methods=['GET'])
 def getAll():
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor()
         cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%%H:%%i:%%s') as horario, local, status FROM Corrida")
         corridas = cursor.fetchall()
         cursor.close()
@@ -18,7 +18,7 @@ def getAll():
 @corrida_bp.route('/corrida/getById/<int:id>', methods=['GET'])
 def getById(id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor()
         cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%%H:%%i:%%s') as horario, local, status FROM Corrida WHERE id=%s", (id,))
         corrida = cursor.fetchone()
         cursor.close()
