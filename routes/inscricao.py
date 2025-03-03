@@ -1,4 +1,5 @@
-import pymysql.cursors
+from MySQLdb.cursors import DictCursor
+from MySQLdb._exceptions import IntegrityError
 from flask import Blueprint, request, jsonify
 from db import mysql
 
@@ -21,7 +22,7 @@ def createInscricao(corrida_id):
         return jsonify({"message": "Inscrição realizada com sucesso!"}), 201
 
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Atleta, corrida ou categoria não encontrados"}), 409  # HTTP 409 - Conflito
         elif "Duplicate entry" in str(e):
@@ -35,7 +36,7 @@ def createInscricao(corrida_id):
 @inscricao_bp.route('/inscricao/getAll', methods=['GET'])
 def getAll():
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status  FROM Inscricao")
         inscricoes = cursor.fetchall()
         cursor.close()
@@ -47,8 +48,8 @@ def getAll():
 @inscricao_bp.route('/inscricao/getById/<int:id>', methods=['GET'])
 def getById(id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%%H:%%i:%%s') as hora_largada, TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') as hora_chegada, classificacao, status FROM Inscricao WHERE id=%s", (id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE id=%s", (id,))
         inscricao = cursor.fetchone()
         cursor.close()
 
@@ -63,8 +64,8 @@ def getById(id):
 @inscricao_bp.route('/inscricao/getAllByCategoria/<int:categoria_id>', methods=['GET'])
 def getAllByCategoria(categoria_id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%%H:%%i:%%s') as hora_largada, TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
         inscricao = cursor.fetchall()
         cursor.close()
 
@@ -79,8 +80,8 @@ def getAllByCategoria(categoria_id):
 @inscricao_bp.route('/corrida/<int:corrida_id>/inscricao/getAllByCorrida', methods=['GET'])
 def getAllByCorrida(corrida_id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%%H:%%i:%%s') as hora_largada, TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') as hora_chegada, classificacao, status FROM Inscricao WHERE corrida_id = %s", (corrida_id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE corrida_id = %s", (corrida_id,))
 
         inscricao = cursor.fetchall()
         cursor.close()
@@ -96,8 +97,8 @@ def getAllByCorrida(corrida_id):
 @inscricao_bp.route('/corrida/<int:corrida_id>/inscricao/getByNumero/<int:numero>', methods=['GET'])
 def getByNumero(corrida_id, numero):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%%H:%%i:%%s') as hora_largada, TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') as hora_chegada, classificacao, status FROM Inscricao WHERE corrida_id = %s AND numero = %s", (corrida_id, numero,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE corrida_id = %s AND numero = %s", (corrida_id, numero,))
 
         inscricao = cursor.fetchone()
         cursor.close()
@@ -113,8 +114,8 @@ def getByNumero(corrida_id, numero):
 @inscricao_bp.route('/corrida/<int:corrida_id>/inscricao/getByCpf/<string:cpf>', methods=['GET'])
 def getByCpf(corrida_id, cpf):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT i.id, i.atleta_id, i.corrida_id, i.categoria_id, i.numero, TIME_FORMAT(i.hora_largada, '%%H:%%i:%%s') as hora_largada, TIME_FORMAT(i.hora_chegada, '%%H:%%i:%%s') as hora_chegada, i.classificacao, i.status FROM Inscricao AS i JOIN Atleta as a ON a.id = i.atleta_id WHERE i.corrida_id = %s AND a.cpf = %s", (corrida_id, cpf,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT i.id, i.atleta_id, i.corrida_id, i.categoria_id, i.numero, TIME_FORMAT(i.hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(i.hora_chegada, '%H:%i:%s') as hora_chegada, i.classificacao, i.status FROM Inscricao AS i JOIN Atleta as a ON a.id = i.atleta_id WHERE i.corrida_id = %s AND a.cpf = %s", (corrida_id, cpf,))
 
         inscricao = cursor.fetchone()
         cursor.close()
@@ -170,7 +171,7 @@ def updateLargada(categoria_id):
         cursor.close()
         return jsonify({"message": "Hora_largada atualizada com sucesso!"}), 200
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Atleta ou Categoria não encontrados"}), 409  # HTTP 409 - Conflito
         elif "Duplicate entry" in str(e):

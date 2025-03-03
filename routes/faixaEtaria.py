@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 from db import mysql
-import pymysql.cursors
+from MySQLdb.cursors import DictCursor
 
 faixa_etaria_bp = Blueprint('faixa_etaria', __name__)
 
 @faixa_etaria_bp.route('/faixa_etaria/getAll', methods=['GET'])
 def getAll():
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM FaixaEtaria")
         faixas = cursor.fetchall()
         cursor.close()
@@ -18,7 +18,7 @@ def getAll():
 @faixa_etaria_bp.route('/faixa_etaria/getById/<int:id>', methods=['GET'])
 def getById(id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM FaixaEtaria WHERE id=%s", (id,))
         faixa = cursor.fetchone()  # Usa fetchone() pois ID é único
         cursor.close()

@@ -1,14 +1,15 @@
-import pymysql.cursors
 from flask import Blueprint, request, jsonify
 from db import mysql
+from MySQLdb.cursors import DictCursor
+from MySQLdb._exceptions import IntegrityError
 
 corrida_bp = Blueprint('corrida', __name__)
 
 @corrida_bp.route('/corrida/getAll', methods=['GET'])
 def getAll():
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%%H:%%i:%%s') as horario, local, status FROM Corrida")
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%H:%i:%s') as horario, local, status FROM Corrida")
         corridas = cursor.fetchall()
         cursor.close()
         return jsonify(corridas), 200
@@ -18,8 +19,8 @@ def getAll():
 @corrida_bp.route('/corrida/getById/<int:id>', methods=['GET'])
 def getById(id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%%H:%%i:%%s') as horario, local, status FROM Corrida WHERE id=%s", (id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, nome, modalidade_id, data, TIME_FORMAT(horario, '%H:%i:%s') as horario, local, status FROM Corrida WHERE id=%s", (id,))
         corrida = cursor.fetchone()
         cursor.close()
 
@@ -47,7 +48,7 @@ def createCorrida():
         cursor.close()
         return jsonify({"message": "Corrida criada com sucesso!"}), 201
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Modalidade não encontrada"}), 409  # HTTP 409 - Conflito
         return jsonify({"error": f"Erro ao cadastrar corrida: {str(e)}"}), 400
@@ -75,7 +76,7 @@ def updateCorrida(id):
         cursor.close()
         return jsonify({"message": "Corrida atualizada com sucesso!"}), 200
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Modalidade não encontrada"}), 409  # HTTP 409 - Conflito
         return jsonify({"error": f"Erro ao atualizar corrida: {str(e)}"}), 400

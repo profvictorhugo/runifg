@@ -1,4 +1,5 @@
-import pymysql.cursors
+from MySQLdb.cursors import DictCursor
+from MySQLdb._exceptions import IntegrityError
 from flask import Blueprint, request, jsonify
 from db import mysql
 
@@ -7,7 +8,7 @@ categoria_bp = Blueprint('categoria', __name__)
 @categoria_bp.route('/categoria/getAll', methods=['GET'])
 def getAll():
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT id, corrida_id, prova_id, nome, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria")
         categorias = cursor.fetchall()
         cursor.close()
@@ -18,8 +19,8 @@ def getAll():
 @categoria_bp.route('/categoria/getById/<int:id>', methods=['GET'])
 def getById(id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, corrida_id, prova_id, nome, TIME_FORMAT(previsao_hora_largada, '%%H:%%i:%%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE id=%s", (id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, corrida_id, prova_id, nome, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE id=%s", (id,))
         categoria = cursor.fetchone()  # Usa fetchone() pois ID é único
         cursor.close()
 
@@ -34,8 +35,8 @@ def getById(id):
 @categoria_bp.route('/categoria/getAllByCorrida/<int:corrida_id>', methods=['GET'])
 def getAllByCorrida(corrida_id):
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, nome, prova_id, corrida_id, TIME_FORMAT(previsao_hora_largada, '%%H:%%i:%%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE corrida_id=%s", (corrida_id,))
+        cursor = mysql.connection.cursor(DictCursor)
+        cursor.execute("SELECT id, nome, prova_id, corrida_id, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE corrida_id=%s", (corrida_id,))
         categoria = cursor.fetchall()
         cursor.close()
 
@@ -63,7 +64,7 @@ def createCategoria():
         cursor.close()
         return jsonify({"message": "Categoria criada com sucesso!"}), 201
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Corrida, Prova ou Faixa Etária não encontrada"}), 409  # HTTP 409 - Conflito
         elif "Duplicate entry" in str(e):
@@ -94,7 +95,7 @@ def updateCategoria(id):
         return jsonify({"message": "Categoria atualizada com sucesso!"}), 200
 
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "foreign key constraint fails" in str(e):
             return jsonify({"error": "Corrida, Prova ou Faixa Etária não encontrada"}), 409  # HTTP 409 - Conflito
         elif "Duplicate entry" in str(e):
