@@ -3,8 +3,10 @@ from db import init_db
 from routes import bp
 from config import DevelopmentConfig, ProductionConfig
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para todas as origens
 
 if os.getenv("FLASK_ENV") == "production":
     app.config.from_object(ProductionConfig)
