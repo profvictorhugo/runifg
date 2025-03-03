@@ -13,5 +13,3 @@ def init_db(app):
     app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 
     mysql.init_app(app)
-
-

@@ -33,7 +33,7 @@ def createAtleta():
 def getAll():
 
     try:
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta")
         atletas = cursor.fetchall()
         cursor.close()
@@ -45,7 +45,7 @@ def getAll():
 def getById(id):
 
     try:
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE id = %s", (id,))
         atleta = cursor.fetchone()
         cursor.close()
@@ -61,7 +61,7 @@ def getById(id):
 def getByCpf(cpf):
 
     try:
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE cpf = %s", (cpf,))
         atleta = cursor.fetchone()
         cursor.close()

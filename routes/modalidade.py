@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from db import mysql
-import pymysql.cursors
+from MySQLdb.cursors import DictCursor
 
 modalidade_bp = Blueprint('modalidade', __name__)
 
@@ -8,7 +8,7 @@ modalidade_bp = Blueprint('modalidade', __name__)
 def getAll():
 
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM Modalidade")
         modalidades = cursor.fetchall()
         cursor.close()
@@ -20,7 +20,7 @@ def getAll():
 def getById(id):
 
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM Modalidade WHERE id=%s", (id,))
         modalidades = cursor.fetchall()
         cursor.close()
