@@ -7,6 +7,7 @@ from .modalidade import modalidade_bp
 from .faixaEtaria import faixa_etaria_bp
 from routes.categoria import categoria_bp
 from .classificacoes import classificacoes_bp
+from routes.gerenciamento import auth_bp
 
 bp = Blueprint('runIFG', __name__)
 
@@ -18,3 +19,4 @@ bp.register_blueprint(modalidade_bp)
 bp.register_blueprint(faixa_etaria_bp)
 bp.register_blueprint(categoria_bp)
 bp.register_blueprint(classificacoes_bp)
+bp.register_blueprint(auth_bp)
