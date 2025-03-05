@@ -1,10 +1,219 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <title>RunIFG</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <title>RunIFG - Movimente-se pela história: 18 anos do IFG/Inhumas e 94 da cidade de Inhumas</title>
+    <!-- Sistema de grid -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+        crossorigin="anonymous"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+
+        .carousel-container {
+            position: relative;
+        }
+
+        .carousel-container .carousel {
+            min-height: 400px; /* Garante que o carrossel tenha um tamanho adequado */
+        }
+
+        .overlay-container {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8); /* Aumentei a opacidade para melhor legibilidade */
+            padding: 5px;
+            border-radius: 10px;
+            width: 70%; /* Reduzi um pouco para melhor adaptação */
+            /*max-width: 900px; /* Evita que fique muito largo em telas grandes */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Ajustes para telas menores */
+        @media (max-width: 1400px) {
+            .overlay-container {
+                width: 90%; /* Ocupa mais espaço em telas pequenas */
+                top: 70%; /* Pequeno ajuste na altura */
+                padding: 15px; /* Reduz o padding */
+            }
+
+            .overlay-container h2 {
+                font-size: 1.5rem; /* Reduz tamanho do título */
+            }
+
+            .overlay-container p {
+                font-size: 1rem; /* Reduz tamanho do texto */
+            }
+        }
+
+        /* Ajustes para telas menores */
+        @media (max-width: 1000px) {
+            .overlay-container {
+                width: 90%; /* Ocupa mais espaço em telas pequenas */
+                top: 50%; /* Pequeno ajuste na altura */
+                padding: 15px; /* Reduz o padding */
+            }
+
+            .overlay-container h2 {
+                font-size: 1.5rem; /* Reduz tamanho do título */
+            }
+
+            .overlay-container p {
+                font-size: 1rem; /* Reduz tamanho do texto */
+            }
+        }
+
+        /* Ajustes para telas menores */
+        @media (max-width: 768px) {
+            .overlay-container {
+                width: 90%; /* Ocupa mais espaço em telas pequenas */
+                top: 60%; /* Pequeno ajuste na altura */
+                padding: 15px; /* Reduz o padding */
+            }
+
+            .overlay-container h2 {
+                font-size: 1.5rem; /* Reduz tamanho do título */
+            }
+
+            .overlay-container p {
+                font-size: 1rem; /* Reduz tamanho do texto */
+            }
+        }
+
+
+
+        @media (max-width: 480px) {
+            .overlay-container {
+                width: 95%; /* Maior adaptação para telas muito pequenas */
+                top: 60%;
+                padding: 10px;
+            }
+
+            .overlay-container h2 {
+                font-size: 1.3rem;
+            }
+
+            .overlay-container p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
-Aguardem!
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="index.html">
+            <img src="img/logo1.png" alt="">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="inscricao.html">Inscrição</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="resultados.html">Resultados</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contato.html">Contato</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+      <div class="carousel-container">
+        <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                  <img src="img/img2.jpg" class="d-block w-100" alt="..." width="100%" >
+              </div>
+              <div class="carousel-item">
+                <img src="img/img3.jpg" class="d-block w-100" alt="..." width="100%">
+              </div>
+              <div class="carousel-item">
+                <img src="img/img4.jpg" class="d-block w-100" alt="..." width="100%">
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="overlay-container">
+          <div class="container mt-5">
+            <h2 class="text-center text-dark">Movimente-se pela História: 18 anos do IFG/Inhumas e 94 anos da cidade de Inhumas</h2>
+
+            <p class="text-justify text-dark">
+                Em comemoração aos <strong>18 anos do IFG Campus Inhumas</strong> e aos <strong>94 anos da cidade de Inhumas</strong>, convidamos toda a comunidade para participar de uma emocionante <strong>corrida de rua</strong>! 🏃‍♂️🏃‍♀️💨
+            </p>
+
+            <p class="text-justify text-dark">
+                O evento acontecerá no <strong>dia 15 de março de 2025 (sábado)</strong> e contará com diversas modalidades, abrangendo tanto <strong>jovens quanto adultos</strong>. Toda a cidade está convidada a participar, com destaque especial para a comunidade do IFG Inhumas, incluindo <strong>alunos, pais de alunos, professores, servidores e terceirizados</strong>.
+            </p>
+
+            <p class="text-justify text-dark">
+                Junte-se a nós nessa celebração, una-se à história de Inhumas e do IFG, e desafie seus limites em uma corrida cheia de energia e significado! 🏅
+            </p>
+
+            <p class="text-center text-dark">
+                📅 <strong>Data:</strong> 15 de março de 2025 (sábado) <br>
+                📍 <strong>Local:</strong> Inhumas - GO <br>
+                ✅ <strong>Inscrições abertas!</strong> Faça já a sua pelo link abaixo:
+            </p>
+
+            <div class="text-center">
+                <a href="inscricao.html" class="btn btn-primary btn-lg">Inscreva-se agora</a>
+            </div>
+          </div>
+          <hr />
+          <!--
+          <h2 class="text-center text-dark">Siga nossas redes sociais:</h2>
+            <div class="social-icons">
+                <a href="https://www.instagram.com" target="_blank">
+                    <i class="fab fa-instagram fa-2x"></i>
+                </a>
+
+                <a href="https://www.facebook.com" target="_blank">
+                    <i class="fab fa-facebook fa-2x"></i>
+                </a>
+
+            </div>-->
+            <hr />
+
+          <footer class="bg-dark text-white py-4">
+            <div class="container text-center">
+                <nav class="mb-3">
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><a href="index.html" class="text-white text-decoration-none">Home</a></li>
+                        <li class="list-inline-item"><a href="inscricao.html" class="text-white text-decoration-none">Inscrição</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-white text-decoration-none">Contato</a></li>
+                    </ul>
+                </nav>
+                <p class="text-secondary mb-0">© 2025 RunIFG. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+
+      </div>
+
 </body>
+
 </html>
