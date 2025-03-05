@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from db import mysql
-import pymysql.cursors
+from MySQLdb.cursors import DictCursor
+from MySQLdb._exceptions import IntegrityError
 
 atleta_bp = Blueprint('atleta', __name__)
 
@@ -20,7 +21,7 @@ def createAtleta():
         cursor.close()
         return jsonify({"message": "Atleta cadastrado com sucesso!"}), 201
 
-    except pymysql.err.IntegrityError as e:
+    except IntegrityError as e:
         if "Duplicate entry" in str(e):
             return jsonify({"error": "CPF já cadastrado"}), 409  # HTTP 409 - Conflito
         return jsonify({"error": f"Erro ao cadastrar atleta: {str(e)}"}), 400
@@ -33,7 +34,7 @@ def createAtleta():
 def getAll():
 
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM Atleta")
         atletas = cursor.fetchall()
         cursor.close()
@@ -45,7 +46,7 @@ def getAll():
 def getById(id):
 
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE id = %s", (id,))
         atleta = cursor.fetchone()
         cursor.close()
@@ -61,7 +62,7 @@ def getById(id):
 def getByCpf(cpf):
 
     try:
-        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
+        cursor = mysql.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM Atleta WHERE cpf = %s", (cpf,))
         atleta = cursor.fetchone()
         cursor.close()
