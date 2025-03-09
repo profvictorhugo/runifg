@@ -15,8 +15,8 @@ def createInscricao(corrida_id):
 
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO Inscricao (atleta_id, corrida_id, categoria_id, status) VALUES (%s, %s, %s, %s, 'ATIVA')",
-                       (data['atleta_id'], corrida_id, data['categoria_id'],))
+        cursor.execute("INSERT INTO Inscricao (atleta_id, corrida_id, categoria_id, status) VALUES (%s, %s, %s, %s)",
+                       (data['atleta_id'], corrida_id, data['categoria_id'], 'ATIVA'))
         mysql.connection.commit()
         cursor.close()
         return jsonify({"message": "Inscrição realizada com sucesso!"}), 201
@@ -44,6 +44,42 @@ def getAll():
 
     except Exception as e:
         return jsonify({"error": f"Erro ao buscar inscrições: {str(e)}"}), 500
+
+@inscricao_bp.route('/corrida/<int:corrida_id>/inscricao/getByAtletaId/<int:atleta_id>', methods=['GET'])
+def getByAtletaId(corrida_id, atleta_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            SELECT id, atleta_id, corrida_id, categoria_id, numero, 
+                   TIME_FORMAT(hora_largada, '%%H:%%i:%%s') as hora_largada, 
+                   TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') as hora_chegada, 
+                   classificacao, status 
+            FROM Inscricao 
+            WHERE atleta_id = %s AND corrida_id = %s
+        """, (atleta_id, corrida_id))
+
+        inscricao = cursor.fetchone()
+        cursor.close()
+
+        if inscricao:
+            # Criando um dicionário para retorno JSON
+            inscricao_dict = {
+                "id": inscricao[0],
+                "atleta_id": inscricao[1],
+                "corrida_id": inscricao[2],
+                "categoria_id": inscricao[3],
+                "numero": inscricao[4],
+                "hora_largada": inscricao[5],
+                "hora_chegada": inscricao[6],
+                "classificacao": inscricao[7],
+                "status": inscricao[8]
+            }
+            return jsonify(inscricao_dict), 200
+        else:
+            return jsonify({"error": "Inscrição não encontrada para este atleta nesta corrida."}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar inscrição: {str(e)}"}), 500
 
 @inscricao_bp.route('/inscricao/getById/<int:id>', methods=['GET'])
 def getById(id):
