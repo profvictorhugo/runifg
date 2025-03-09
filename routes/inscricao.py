@@ -225,6 +225,28 @@ def updateLargada(categoria_id):
     except Exception as e:
         return jsonify({"error": f"Erro ao atualizar inscrição: {str(e)}"}), 500
 
+@inscricao_bp.route('/inscricao/resetLargada/<int:categoria_id>', methods=['PUT'])
+def resetLargada(categoria_id):
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Atualiza diretamente e verifica se algo foi alterado
+        cursor.execute("UPDATE Inscricao SET hora_largada = NULL WHERE categoria_id = %s",
+                       (categoria_id,))
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            return jsonify({"error": "Nada foi alterado!"}), 404
+
+        cursor.close()
+        return jsonify({"message": "Hora_largada resetada com sucesso!"}), 200
+
+    except IntegrityError as e:
+        return jsonify({"error": f"Erro ao atualizar inscrição: {str(e)}"}), 400
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao atualizar inscrições: {str(e)}"}), 500
 
 @inscricao_bp.route('/inscricao/updateNumero/<int:id>', methods=['PUT'])
 def updateNumero(id):
