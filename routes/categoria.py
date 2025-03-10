@@ -20,7 +20,19 @@ def getAll():
 def getById(id):
     try:
         cursor = mysql.connection.cursor(DictCursor)
-        cursor.execute("SELECT id, corrida_id, prova_id, nome, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE id=%s", (id,))
+        #cursor.execute("SELECT id, corrida_id, prova_id, nome, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE id=%s", (id,))
+        query = """
+                    SELECT 
+                        id, 
+                        corrida_id, 
+                        prova_id, 
+                        nome, 
+                        TIME_FORMAT(previsao_hora_largada, '%%H:%%i:%%s') AS previsao_hora_largada, 
+                        faixa_etaria_id 
+                    FROM Categoria 
+                    WHERE id = %s;
+                """
+        cursor.execute(query, (id,))
         categoria = cursor.fetchone()  # Usa fetchone() pois ID é único
         cursor.close()
 
