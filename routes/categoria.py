@@ -36,7 +36,19 @@ def getById(id):
 def getAllByCorrida(corrida_id):
     try:
         cursor = mysql.connection.cursor(DictCursor)
-        cursor.execute("SELECT id, nome, prova_id, corrida_id, TIME_FORMAT(previsao_hora_largada, '%H:%i:%s') as previsao_hora_largada, faixa_etaria_id FROM Categoria WHERE corrida_id=%s", (corrida_id,))
+        query = """
+        SELECT 
+            Categoria.id AS categoria_id, 
+            Categoria.nome as categoria_nome, Corrida.nome as corrida_nome, 
+            prova_id, 
+            corrida_id, 
+            TIME_FORMAT(previsao_hora_largada, '%%H:%%i:%%s') AS previsao_hora_largada, 
+            faixa_etaria_id 
+        FROM Categoria 
+        INNER JOIN Corrida ON Corrida.id = Categoria.corrida_id 
+        WHERE Categoria.corrida_id = %s;
+        """
+        cursor.execute(query, (corrida_id,))
         categoria = cursor.fetchall()
         cursor.close()
 

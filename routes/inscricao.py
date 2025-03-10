@@ -109,7 +109,16 @@ def getById(id):
 def getAllByCategoria(categoria_id):
     try:
         cursor = mysql.connection.cursor(DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
+        #cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
+        query = """
+            SELECT id, atleta_id, corrida_id, categoria_id, numero, 
+                   TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada, 
+                   TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') AS hora_chegada, 
+                   classificacao, status 
+            FROM Inscricao 
+            WHERE categoria_id = %s;
+            """
+        cursor.execute(query, (categoria_id,))
         inscricao = cursor.fetchall()
         cursor.close()
 
