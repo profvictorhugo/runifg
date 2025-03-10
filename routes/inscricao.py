@@ -367,3 +367,29 @@ def deleteInscricao(id):
 
     except Exception as e:
         return jsonify({"error": f"Erro ao deletar inscrição: {str(e)}"}), 500
+
+
+@inscricao_bp.route('/inscricao/getHoraLargada/<int:categoria_id>', methods=['GET'])
+def getHoraLargada(categoria_id):
+    try:
+        cursor = mysql.connection.cursor(DictCursor)
+
+        # Consulta otimizada para buscar apenas um valor de hora_largada
+        query = """
+            SELECT DISTINCT TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada
+            FROM Inscricao
+            WHERE categoria_id = %s
+            LIMIT 1;
+        """
+
+        cursor.execute(query, (categoria_id,))
+        result = cursor.fetchone()
+        cursor.close()
+
+        if result and result["hora_largada"]:
+            return jsonify({"hora_largada": result["hora_largada"]}), 200
+        else:
+            return jsonify({"error": "Nenhum horário de largada encontrado"}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar horário de largada: {str(e)}"}), 500
