@@ -393,3 +393,35 @@ def getHoraLargada(categoria_id):
 
     except Exception as e:
         return jsonify({"error": f"Erro ao buscar horário de largada: {str(e)}"}), 500
+
+
+@inscricao_bp.route('/inscricao/getEncerradas/<int:categoria_id>', methods=['GET'])
+def getInscricoesEncerradas(categoria_id):
+    try:
+        cursor = mysql.connection.cursor(DictCursor)
+
+        # Consulta SQL filtrando por categoria_id e status 'ENCERRADA'
+        query = """
+                    SELECT 
+                        id, 
+                        numero, 
+                        TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada, 
+                        TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') AS hora_chegada, 
+                        TIME_FORMAT(TIMEDIFF(hora_chegada, hora_largada), '%%H:%%i:%%s') AS tempo
+                    FROM Inscricao
+                    WHERE categoria_id = %s 
+                    AND status = 'ENCERRADA'
+                    ORDER BY hora_chegada DESC;
+                """
+
+        cursor.execute(query, (categoria_id,))
+        results = cursor.fetchall()
+        cursor.close()
+
+        if results:
+            return jsonify({"inscricoes": results}), 200
+        else:
+            return jsonify({"error": "Nenhuma inscrição encerrada encontrada para essa categoria"}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar inscrições encerradas: {str(e)}"}), 500
