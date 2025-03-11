@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RunIFG - Gerenciamento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Administração - RunIFG</title>
+  <!-- Sistema de grid -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <!-- jQuery primeiro -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!-- Popper.js (necessário para dropdowns, tooltips, etc) -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            margin-top: 20px;
+        }
+        .container {
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .alert {
+            display: none;
+        }
+        .linha{
+            background-color: lightgrey;
+            width: 90%;
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="index.html">
+            <img src="../img/logo1.png" alt="">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="admin.html">Lista de Atletas</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="controlecorrida.html">Iniciar Corrida<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lancarchegada.html">Lançar Chegadas</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="text-center">Painel de controle da corrida</h2>
+        <hr />
+        <p><strong>Categorias da Corrida</strong></p>
+        <div id="categorias">Carregando...</div>
+    </div>
+
+    <script>
+        let selectedCategories = [];
+        //const baseURL = "http://191.252.223.126:5000";
+        const baseURL = "http://127.0.0.1:5000";
+        const apiUrl = `${baseURL}/runIFG/categoria/getAllByCorrida/2`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao buscar categorias");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const container = document.getElementById("categorias");
+                    container.innerHTML = ""; // Limpa o conteúdo antes de adicionar
+
+                    data.forEach(item => {
+                        const div = document.createElement("div");
+                        div.classList.add("row", "align-items-center", "mb-2", "linha"); // Bootstrap Grid + Alinhamento vertical
+
+                        div.innerHTML = `
+                            <div class="col-auto">
+                                <input type="checkbox" id="categoria_${item.categoria_id}" name="categoria" value="${item.categoria_id}">
+                            </div>
+                            <div class="col">
+                                <label for="categoria_${item.categoria_id}" class="fw-bold">${item.categoria_nome}</label>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary btn-sm" onclick="iniciaCorrida(${item.categoria_id})" id="btnInicia_${item.categoria_id}">Iniciar</button>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-secondary btn-sm" onclick="resetaCorrida(${item.categoria_id})" id="btnReseta_${item.categoria_id}" disabled>Resetar</button>
+                            </div>
+                            <div class="col">
+                                <span id="respCat_${item.categoria_id}"></span>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-secondary btn-sm" onclick="relogioCorrida(${item.categoria_id})">Relógio</button>
+                            </div>
+                            <div class="col-auto">
+                               <!-- <button class="btn btn-secondary btn-sm" onclick="telaCorrida(${item.categoria_id})">Chegada</button> -->
+                            </div>
+                        `;
+                        const checkbox = div.querySelector('input[type="checkbox"]');
+                        checkbox.addEventListener('change', (event) => {
+                            const categoriaId = item.categoria_id;
+
+                            if (event.target.checked) {
+                                // Adiciona categoria_id ao array
+                                selectedCategories.push(categoriaId);
+                            } else {
+                                // Remove categoria_id do array
+                                selectedCategories = selectedCategories.filter(id => id !== categoriaId);
+                            }
+
+                            // Aqui você pode usar selectedCategories para manipular ou exibir o array
+                            console.log("Categorias selecionadas:", selectedCategories);
+                        });
+                        container.appendChild(div);
+
+                    });
+                    const div2 = document.createElement("div");
+                    div2.innerHTML = `
+                            <div id="respostaInicioCorrida"></div>
+                            <button onclick="iniciaCorrida(selectedCategories)">Iniciar todas marcadas </button>
+                            <button onclick="resetaCorrida(selectedCategories)">Resetar todas marcadas</button><br>
+                        `;
+                    container.appendChild(div2);
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar os dados:", error);
+                    document.getElementById("categorias").innerHTML = "Erro ao carregar categorias.";
+                });
+        function iniciaCorrida(param){
+            document.getElementById("respostaInicioCorrida").innerHTML = "";
+            // Verifica se o parâmetro está vazio
+            if (!param || (Array.isArray(param) && param.length === 0)) {
+                console.log("Nenhuma categoria selecionada ou valor inválido.");
+                document.getElementById("respostaInicioCorrida").innerHTML = `
+                <span class="text-danger">Nenhuma categoria selecionada ou valor inválido.</span>
+                `;
+                return;  // Retorna caso o parâmetro esteja vazio ou inválido
+            }
+
+            const horaLargada = getHoraAtual();  // Pega a hora atual formatada
+            // Verifica se o parâmetro é um array
+            if (Array.isArray(param)) {
+                // Se for um array, percorre ele
+                param.forEach(categoriaId => {
+                    console.log(`Iniciando corrida para a categoria com ID: ${categoriaId}`);
+                    atualizaLargada(categoriaId, horaLargada);
+                });
+            } else {
+                if (confirm("Ao iniciar separadamente, o horário de início ficará diferente para cada categoria. Deseja continuar?")) {
+                    // Se for um único valor, apenas executa a lógica para esse valor
+                    console.log(`Iniciando corrida para a categoria com ID: ${param}`);
+                    atualizaLargada(param, horaLargada);
+                }
+            }
+        }
+
+        function resetaCorrida(param){
+            document.getElementById("respostaInicioCorrida").innerHTML = "";
+            // Verifica se o parâmetro está vazio
+            if (!param || (Array.isArray(param) && param.length === 0)) {
+                console.log("Nenhuma categoria selecionada ou valor inválido.");
+                document.getElementById("respostaInicioCorrida").innerHTML = `
+                <span class="text-danger">Nenhuma categoria selecionada ou valor inválido.</span>
+                `;
+                return;  // Retorna caso o parâmetro esteja vazio ou inválido
+            }
+            if (confirm("Resetar irá anular a prova iniciada. Deseja continuar?")) {
+                // Verifica se o parâmetro é um array
+                if (Array.isArray(param)) {
+                    // Se for um array, percorre ele
+                    param.forEach(categoriaId => {
+                        console.log(`Iniciando corrida para a categoria com ID: ${categoriaId}`);
+                        atualizaLargadaReset(categoriaId);
+                    });
+                } else {
+                    // Se for um único valor, apenas executa a lógica para esse valor
+                    console.log(`Iniciando corrida para a categoria com ID: ${param}`);
+                    atualizaLargadaReset(param);
+                }
+            }
+        }
+
+        // Função para pegar a hora atual e formatar no formato HH:MM:SS
+        function getHoraAtual() {
+            const now = new Date(); // Pega a data e hora atuais
+            const hours = String(now.getHours()).padStart(2, '0'); // Pega as horas e garante 2 dígitos
+            const minutes = String(now.getMinutes()).padStart(2, '0'); // Pega os minutos e garante 2 dígitos
+            const seconds = String(now.getSeconds()).padStart(2, '0'); // Pega os segundos e garante 2 dígitos
+            return `${hours}:${minutes}:${seconds}`; // Retorna a hora no formato HH:MM:SS
+        }
+        function atualizaLargada(id, horaLargada) {
+            //const horaLargada = getHoraAtual();  // Pega a hora atual formatada
+
+            const url = `${baseURL}/runIFG/inscricao/updateLargada/${id}`;  // URL da API
+            const data = {
+                hora_largada: horaLargada  // Envia a hora no formato esperado
+            };
+
+            // Faz a requisição PUT
+            fetch(url, {
+                method: 'PUT',  // Método HTTP PUT
+                headers: {
+                    'Content-Type': 'application/json'  // Define o tipo de conteúdo como JSON
+                },
+                body: JSON.stringify(data)  // Converte o objeto JavaScript em JSON
+            })
+            .then(response => response.json())  // Converte a resposta para JSON
+            .then(data => {
+                console.log(`Sucesso para a categoria ${id}: `, data);
+                document.getElementById(`respCat_${id}`).innerHTML = `
+                <span class="text-success">Categoria iniciada com sucesso!</span>
+                `;
+                document.getElementById(`categoria_${id}`).disabled = true;
+                document.getElementById(`btnInicia_${id}`).disabled = true;
+                document.getElementById(`btnReseta_${id}`).disabled = false;
+                document.getElementById(`categoria_${id}`).checked = false;
+                //removendo esse id da lista de categorias
+                selectedCategories = selectedCategories.filter(id => id !== id);
+
+            })
+            .catch(error => {
+                console.error(`Erro para a categoria ${id}: `, error);
+                document.getElementById(`respCat_${id}`).innerHTML = `
+                <span class="text-danger">Erro ao iniciar corrida!</span>
+                `;
+            });
+        }
+
+        function atualizaLargadaReset(id) {
+            //const horaLargada = getHoraAtual();  // Pega a hora atual formatada
+
+            const url = `${baseURL}/runIFG/inscricao/resetLargada/${id}`;  // URL da API
+
+            // Faz a requisição PUT
+            fetch(url, {
+                method: 'PUT',  // Método HTTP PUT
+            })
+            .then(response => response.json())  // Converte a resposta para JSON
+            .then(data => {
+                console.log(`Sucesso reset para a categoria ${id}: `, data);
+                document.getElementById(`respCat_${id}`).innerHTML = `
+                <span class="text-success">Categoria resetada com sucesso!</span>
+                `;
+                document.getElementById(`categoria_${id}`).disabled = false;
+                document.getElementById(`btnInicia_${id}`).disabled = false;
+                document.getElementById(`btnReseta_${id}`).disabled = true;
+                document.getElementById(`categoria_${id}`).checked = false;
+                //removendo esse id da lista de categorias
+                selectedCategories = selectedCategories.filter(id => id !== id);
+            })
+            .catch(error => {
+                console.error(`Erro para a categoria ${id}: `, error);
+                document.getElementById(`respCat_${id}`).innerHTML = `
+                <span class="text-danger">Erro ao resetar a categoria!</span>
+                `;
+            });
+        }
+        function relogioCorrida(id){
+            console.log("Abrindo tela do relógio para a categoria " + id);
+            window.open(`relogio.html?idCategoria=${id}`, "_blank");
+        }
+        function telaCorrida(id){
+            console.log("Abrindo tela da corrida para a categoria " + id);
+            window.open(`lancarchegada.html?idCategoria=${id}`, "_blank");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Lançar chegada de atleta - Administração - RunIFG</title>
+  <!-- Sistema de grid -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <!-- jQuery primeiro -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!-- Popper.js (necessário para dropdowns, tooltips, etc) -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            margin-top: 20px;
+        }
+        .container {
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .alert {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="index.html">
+            <img src="../img/logo1.png" alt="">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="admin.html">Lista de Atletas <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="controlecorrida.html">Controlar Corrida</a>
+                </li>
+                <li class="nav-itemactive">
+                    <a class="nav-link" href="lancarchegada.html">Lançar Chegadas <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="text-center">Lançar chegada de atletas</span> </h2>
+        <div>
+            <input type="number" id="campoBusca" placeholder="Informe o número">
+            <button onclick="lancarChegada()">Lançar Chegada</button>
+            <button onclick="limparForm()">Limpar</button>
+            <div id="resposta"></div>
+        </div>
+        <hr />
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Atletas lançados para a categoria 5 km</h5>
+                <div id="resposta1">1</div>
+            </div>
+            <div class="col-md-6">
+                <h5>Atletas lançados para a categoria 10 km</h5>
+                <div id="resposta2">2</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        //let idCategoria = obterParametro('idCategoria');
+        let categorias = [16, 18]; //alterar quando em produção!!!
+        let idCorrida = 2; //alterar quando em produção!!!
+        //console.log("Categoria recebida como parâmetro:" + idCategoria);
+
+        //const baseURL = "http://191.252.223.126:5000";
+        const baseURL = "http://127.0.0.1:5000";
+        window.onload = function() {
+            // Verifica se o usuário está autenticado
+            if (sessionStorage.getItem('authenticated') !== 'true') {
+                // Redireciona para a página de login, caso não autenticado
+                window.location.href = 'index.html'; // Altere para a página de login
+            }else{
+                //carregarCategoria(idCategoria);
+                //passou
+            }
+        };
+        // Função para obter parâmetros da URL
+        function obterParametro(nome) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nome);
+        }
+
+        /*
+        function carregarCategoria(idCategoria) {
+            const url = `${baseURL}/runIFG/categoria/getById/${idCategoria}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro ao buscar categoria: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Atualiza o conteúdo da div "categoria" com o nome da categoria retornada
+                    document.getElementById("categoria").textContent = data.nome;
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar a categoria:", error);
+                    document.getElementById("categoria").textContent = "Erro ao carregar categoria";
+                });
+        }*/
+
+        // Função para pegar a hora atual e formatar no formato HH:MM:SS
+        function getHoraAtual() {
+            const now = new Date(); // Pega a data e hora atuais
+            const hours = String(now.getHours()).padStart(2, '0'); // Pega as horas e garante 2 dígitos
+            const minutes = String(now.getMinutes()).padStart(2, '0'); // Pega os minutos e garante 2 dígitos
+            const seconds = String(now.getSeconds()).padStart(2, '0'); // Pega os segundos e garante 2 dígitos
+            return `${hours}:${minutes}:${seconds}`; // Retorna a hora no formato HH:MM:SS
+        }
+
+        function lancarChegada() {
+            let valor = document.getElementById("campoBusca").value;
+            document.getElementById("resposta").innerHTML = "";
+            if (valor.trim() !== "") {
+                console.log("Lançando chegada para:", valor);
+                const horaLargada = getHoraAtual();  // Pega a hora atual formatada
+                const data = {
+                    hora_chegada: horaLargada  // Envia a hora no formato esperado
+                };
+                const url = `${baseURL}/runIFG/corrida/${idCorrida}/inscricao/updateChegada/${valor}`;
+
+                fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro ao lançar chegada: ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Atualiza o conteúdo da div "categoria" com o nome da categoria retornada
+                        document.getElementById("resposta").innerHTML = `
+                                <span class="text-success">Chegada lançada com sucesso para o atleta ${valor}</span>
+                        `;
+                        document.getElementById("campoBusca").value = "";
+                        console.log("Concluído. Lançada a chegada para:", valor);
+                        buscaLancados(categorias);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao lançar chegada:", error);
+                        document.getElementById("resposta").innerHTML = `
+                                <span class="text-danger">Chegada não lançada para ${valor}. ${error}</span>
+                        `;
+                        document.getElementById("campoBusca").value = "";
+                    });
+            } else {
+                console.log("Por favor, informe um número.");
+                document.getElementById("resposta").innerHTML = `
+                     <span class="text-danger">Informe um número.</span>
+                `;
+            }
+        }
+
+        // Adiciona um evento para capturar a tecla "Enter" no campo de busca
+        document.getElementById("campoBusca").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Evita comportamento padrão do formulário (se houver)
+                lancarChegada();
+            }
+        });
+
+        function limparForm() {
+            document.getElementById("campoBusca").value = "";
+        }
+
+        function buscarInscricoesEncerradas(idCategoria, i) {
+            // URL da API
+            let url = `${baseURL}/runIFG/inscricao/getEncerradas/${idCategoria}`;
+
+            // Chamada à API usando fetch()
+            fetch(url)
+                .then(response => {
+                    // Verifica se a resposta foi um erro 404
+                    if (response.status === 404) {
+                        return response.json().then(data => {
+                            // Se o status for 404, exibe a mensagem do JSON de erro
+                            console.log("Erro>>>>" + data.error);
+                            document.getElementById(`resposta${i}`).innerHTML = `<p>${data.error}</p>`;
+                            //throw new Error(data.error);  // Opcional: lança o erro para interrupção do código
+                        });
+                    }
+
+                    if (!response.ok) {
+                        throw new Error("Erro ao buscar inscrições encerradas.");
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    // Verifica se existem inscrições
+                    if (data.inscricoes && data.inscricoes.length > 0) {
+                        exibirTabela(data.inscricoes, i);
+                    } else {
+                        document.getElementById(`resposta${i}`).innerHTML = "<p>Nenhuma inscrição encerrada encontrada.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro:", error);
+                    // Exibe mensagem de erro genérica para outros tipos de falha
+                    document.getElementById(`resposta${i}`).innerHTML = "<p>Erro ao buscar inscrições encerradas para a categoria.</p>";
+                });
+        }
+
+        function exibirTabela(inscricoes, idCategoria) {
+            let html = `
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Número</th>
+                            <th>Hora de Chegada</th>
+                            <th>Tempo</th>
+                            <th>Posição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let posicao = inscricoes.length; // Começa com o total de inscrições
+            inscricoes.forEach(inscricao => {
+                html += `
+                    <tr>
+                        <td>${inscricao.numero}</td>
+                        <td>${inscricao.hora_chegada}</td>
+                        <td>${inscricao.tempo}</td>
+                        <td>${posicao}</td>
+                    </tr>
+                `;
+                posicao--;
+            });
+
+            html += `</tbody></table>`;
+
+            document.getElementById(`resposta${idCategoria}`).innerHTML = html;
+        }
+        //buscarInscricoesEncerradas(categorias);
+
+        function buscaLancados(categorias){
+            let i = 1;
+            categorias.forEach(categoria => {
+                console.log(categoria);
+                buscarInscricoesEncerradas(categoria, i);
+                i = i + 1;
+            });
+        }
+        buscaLancados(categorias);
+    </script>
+</body>
+</html>
