@@ -10,13 +10,13 @@ def createAtleta():
     data = request.get_json()
 
     # Validação básica dos campos obrigatórios
-    if not all(k in data for k in ('nome', 'cpf', 'sexo', 'data_nasc', 'email')):
-        return jsonify({"error": "Todos os campos são obrigatórios (nome, cpf, sexo, data_nasc, email)"}), 400
+    if not all(k in data for k in ('nome','data_nasc','sexo')):
+        return jsonify({"error": "Os campos nome, sexo e data de nascimento são obrigatórios"}), 400
 
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO Atleta (nome, cpf, sexo, data_nasc, email) VALUES (%s, %s, %s, %s, %s)",
-                       (data['nome'], data['cpf'], data['sexo'], data['data_nasc'], data['email']))
+        cursor.execute("INSERT INTO Atleta (nome, sexo, data_nasc) VALUES (%s, %s, %s)",
+                       (data['nome'], data['sexo'], data['data_nasc']))
         mysql.connection.commit()
         cursor.close()
         return jsonify({"message": "Atleta cadastrado com sucesso!"}), 201

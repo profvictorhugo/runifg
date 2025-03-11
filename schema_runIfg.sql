@@ -46,10 +46,10 @@ CREATE TABLE Categoria (
 CREATE TABLE Atleta (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    cpf VARCHAR(14) NOT NULL UNIQUE,
+    cpf VARCHAR(14) UNIQUE,
     sexo ENUM('M', 'F') NOT NULL,
     data_nasc DATE NOT NULL,
-    email VARCHAR(100) NOT NULL
+    email VARCHAR(100)
 );
 
 CREATE TABLE Inscricao (
