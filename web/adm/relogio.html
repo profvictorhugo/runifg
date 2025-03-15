@@ -25,6 +25,8 @@
 <div id="tempoTranscorrido">00:00:00</div>
 
 <script>
+    //const baseURL = "http://191.252.223.126:5000";
+    const baseURL = "http://127.0.0.1:5000";
     // Função para obter parâmetros da URL
         function obterParametro(nome) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -76,7 +78,7 @@
     // Atualizar o tempo a cada segundo
     setInterval(calcularTempoTranscorrido, 1000);
     function carregarCategoria(idCategoria) {
-        const url = `http://127.0.0.1:5000/runIFG/categoria/getById/${idCategoria}`;
+        const url = `${baseURL}/runIFG/categoria/getById/${idCategoria}`;
 
         fetch(url)
             .then(response => {
@@ -98,7 +100,7 @@
     carregarCategoria(idCategoria);
 
     function carregarHoraLargada(idCategoria) {
-        const url = `http://127.0.0.1:5000/runIFG/inscricao/getHoraLargada/${idCategoria}`;
+        const url = `${baseURL}/runIFG/inscricao/getHoraLargada/${idCategoria}`;
 
         fetch(url)
             .then(response => {

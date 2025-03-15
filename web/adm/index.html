@@ -66,6 +66,8 @@
     </div>
 
     <script>
+        //const baseURL = "http://191.252.223.126:5000";
+        const baseURL = "http://127.0.0.1:5000";
         document.getElementById('loginForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -83,7 +85,7 @@
             // Desativa o botão
             document.getElementById("btnSubmit").disabled = true;
             // Enviar dados para o backend (API Flask)
-            fetch('http://127.0.0.1:5000/runIFG/auth/login', {
+            fetch(`${baseURL}/runIFG/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
