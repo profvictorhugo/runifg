@@ -109,7 +109,16 @@ def getById(id):
 def getAllByCategoria(categoria_id):
     try:
         cursor = mysql.connection.cursor(DictCursor)
-        cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
+        #cursor.execute("SELECT id, atleta_id, corrida_id, categoria_id, numero, TIME_FORMAT(hora_largada, '%H:%i:%s') as hora_largada, TIME_FORMAT(hora_chegada, '%H:%i:%s') as hora_chegada, classificacao, status FROM Inscricao WHERE categoria_id=%s", (categoria_id,))
+        query = """
+            SELECT id, atleta_id, corrida_id, categoria_id, numero, 
+                   TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada, 
+                   TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') AS hora_chegada, 
+                   classificacao, status 
+            FROM Inscricao 
+            WHERE categoria_id = %s;
+            """
+        cursor.execute(query, (categoria_id,))
         inscricao = cursor.fetchall()
         cursor.close()
 
@@ -225,6 +234,28 @@ def updateLargada(categoria_id):
     except Exception as e:
         return jsonify({"error": f"Erro ao atualizar inscrição: {str(e)}"}), 500
 
+@inscricao_bp.route('/inscricao/resetLargada/<int:categoria_id>', methods=['PUT'])
+def resetLargada(categoria_id):
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Atualiza diretamente e verifica se algo foi alterado
+        cursor.execute("UPDATE Inscricao SET hora_largada = NULL WHERE categoria_id = %s",
+                       (categoria_id,))
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            return jsonify({"error": "Nada foi alterado!"}), 404
+
+        cursor.close()
+        return jsonify({"message": "Hora_largada resetada com sucesso!"}), 200
+
+    except IntegrityError as e:
+        return jsonify({"error": f"Erro ao atualizar inscrição: {str(e)}"}), 400
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao atualizar inscrições: {str(e)}"}), 500
 
 @inscricao_bp.route('/inscricao/updateNumero/<int:id>', methods=['PUT'])
 def updateNumero(id):
@@ -336,3 +367,61 @@ def deleteInscricao(id):
 
     except Exception as e:
         return jsonify({"error": f"Erro ao deletar inscrição: {str(e)}"}), 500
+
+
+@inscricao_bp.route('/inscricao/getHoraLargada/<int:categoria_id>', methods=['GET'])
+def getHoraLargada(categoria_id):
+    try:
+        cursor = mysql.connection.cursor(DictCursor)
+
+        # Consulta otimizada para buscar apenas um valor de hora_largada
+        query = """
+            SELECT DISTINCT TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada
+            FROM Inscricao
+            WHERE categoria_id = %s
+            LIMIT 1;
+        """
+
+        cursor.execute(query, (categoria_id,))
+        result = cursor.fetchone()
+        cursor.close()
+
+        if result and result["hora_largada"]:
+            return jsonify({"hora_largada": result["hora_largada"]}), 200
+        else:
+            return jsonify({"error": "Nenhum horário de largada encontrado"}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar horário de largada: {str(e)}"}), 500
+
+
+@inscricao_bp.route('/inscricao/getEncerradas/<int:categoria_id>', methods=['GET'])
+def getInscricoesEncerradas(categoria_id):
+    try:
+        cursor = mysql.connection.cursor(DictCursor)
+
+        # Consulta SQL filtrando por categoria_id e status 'ENCERRADA'
+        query = """
+                    SELECT 
+                        id, 
+                        numero, 
+                        TIME_FORMAT(hora_largada, '%%H:%%i:%%s') AS hora_largada, 
+                        TIME_FORMAT(hora_chegada, '%%H:%%i:%%s') AS hora_chegada, 
+                        TIME_FORMAT(TIMEDIFF(hora_chegada, hora_largada), '%%H:%%i:%%s') AS tempo
+                    FROM Inscricao
+                    WHERE categoria_id = %s 
+                    AND status = 'ENCERRADA'
+                    ORDER BY hora_chegada DESC;
+                """
+
+        cursor.execute(query, (categoria_id,))
+        results = cursor.fetchall()
+        cursor.close()
+
+        if results:
+            return jsonify({"inscricoes": results}), 200
+        else:
+            return jsonify({"error": "Nenhuma inscrição encerrada encontrada para essa categoria"}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar inscrições encerradas: {str(e)}"}), 500

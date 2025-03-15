@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Relógio - Corrida em andamento</title>
+    <style>
+        #tempoTranscorrido{
+            text-align: center;
+            font-size: 250px;
+        }
+        #tempoInicial{
+            text-align: center;
+            font-size: 100px;
+        }
+        #categoria{
+            text-align: center;
+            font-size: xx-large;
+            color: darkred;
+        }
+    </style>
+</head>
+<body>
+<div id="categoria"></div>
+<div id="tempoInicial">00:00:00</div>
+<div id="tempoTranscorrido">00:00:00</div>
+
+<script>
+    //const baseURL = "http://191.252.223.126:5000";
+    const baseURL = "http://127.0.0.1:5000";
+    // Função para obter parâmetros da URL
+        function obterParametro(nome) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nome);
+        }
+
+        // Capturar o idAtleta da URL
+        const idCategoria = obterParametro('idCategoria');
+        console.log("Categoria recebida como parâmetro:" + idCategoria);
+
+    // Supondo que a variável horaInicio já esteja no formato HH:MM:SS
+    let horaInicio = "00:00:00";  // Exemplo de hora de início do evento
+    document.getElementById("tempoInicial").innerHTML = "Início: " + horaInicio;
+    // Função para calcular a diferença em segundos
+    function calcularTempoTranscorrido() {
+        // Converter horaInicio para um objeto Date
+        const [hora, minuto, segundo] = horaInicio.split(":").map(num => parseInt(num));
+        if (hora == 0 && minuto == 0 && segundo == 0){
+            document.getElementById("tempoTranscorrido").innerHTML = "<span style='font-size: x-large'>Carregando...</span>";
+            return
+        }
+
+        const dataHoraInicio = new Date();
+        dataHoraInicio.setHours(hora, minuto, segundo, 0); // Ajusta a hora e minutos, mas com segundos e milissegundos como 0
+
+        // Obter o horário atual
+        const agora = new Date();
+
+        // Calcular a diferença em milissegundos
+        const diferencaMs = agora - dataHoraInicio;
+
+        // Converter milissegundos em segundos, minutos e horas
+        const segundos = Math.floor(diferencaMs / 1000) % 60;
+        const minutos = Math.floor(diferencaMs / 1000 / 60) % 60;
+        const horas = Math.floor(diferencaMs / 1000 / 60 / 60);
+
+        // Formatar o tempo como HH:MM:SS
+        const tempoTranscorrido = `${formatarTempo(horas)}:${formatarTempo(minutos)}:${formatarTempo(segundos)}`;
+
+        // Atualiza o conteúdo na tela
+        document.getElementById("tempoTranscorrido").innerText = tempoTranscorrido;
+    }
+
+    // Função para garantir que a exibição do tempo tenha 2 dígitos (por exemplo, "09" ao invés de "9")
+    function formatarTempo(tempo) {
+        return tempo < 10 ? `0${tempo}` : `${tempo}`;
+    }
+
+    // Atualizar o tempo a cada segundo
+    setInterval(calcularTempoTranscorrido, 1000);
+    function carregarCategoria(idCategoria) {
+        const url = `${baseURL}/runIFG/categoria/getById/${idCategoria}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar categoria: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Atualiza o conteúdo da div "categoria" com o nome da categoria retornada
+                document.getElementById("categoria").textContent = data.nome;
+            })
+            .catch(error => {
+                console.error("Erro ao carregar a categoria:", error);
+                document.getElementById("categoria").textContent = "Erro ao carregar categoria";
+            });
+    }
+
+    carregarCategoria(idCategoria);
+
+    function carregarHoraLargada(idCategoria) {
+        const url = `${baseURL}/runIFG/inscricao/getHoraLargada/${idCategoria}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar hora de largada: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.hora_largada) {
+                    horaInicio = data.hora_largada; // Atualiza a variável global
+                    console.log("Hora de largada obtida:", horaInicio);
+                    document.getElementById("tempoInicial").innerText = horaInicio;
+                } else {
+                    console.warn("Nenhum horário de largada encontrado");
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao carregar hora de largada:", error);
+                alert("Erro: Verifique se a categoria foi inicializada!");
+            });
+    }
+
+    carregarHoraLargada(idCategoria);
+</script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RunIFG - Gerenciamento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Administração - RunIFG</title>
+  <!-- Sistema de grid -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <!-- jQuery primeiro -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!-- Popper.js (necessário para dropdowns, tooltips, etc) -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            margin-top: 20px;
+        }
+        .container {
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .alert {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="index.html">
+            <img src="../img/logo1.png" alt="">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="admin.html">Lista de Atletas <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="controlecorrida.html">Controlar Corrida</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="text-center">Detalhes do atleta selecionado</h2>
+        <a href="admin.html">Clique para voltar à listagem de atletas</a>
+        <hr />
+        <p id="info"></p>
+        <div id="dadosAtleta">Carregando...</div>
+        <hr />
+        <h2 class="text-center">Detalhes da inscrição do atleta</h2>
+        <div id="dadosInscricao">Carregando...</div>
+    </div>
+
+
+
+    <script>
+        //const baseURL = "http://191.252.223.126:5000";
+        const baseURL = "http://127.0.0.1:5000";
+        // Função para obter parâmetros da URL
+        function obterParametro(nome) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nome);
+        }
+
+        // Capturar o idAtleta da URL
+        const idAtleta = obterParametro('idAtleta');
+        let idInscricao = null;
+
+        // Exibir na página
+        document.getElementById("info").innerText = idAtleta
+            ? `ID do Atleta: ${idAtleta}`
+            : "Nenhum ID de atleta encontrado.";
+        // Função para buscar os dados do atleta no web service
+        async function carregarAtleta(id) {
+            if (!id) {
+                document.getElementById("dadosAtleta").innerText = "ID do atleta não encontrado.";
+                return;
+            }
+
+            const url = `${baseURL}/runIFG/atleta/getById/${idAtleta}`;
+
+            try {
+                const resposta = await fetch(url);
+                if (!resposta.ok) throw new Error("Erro ao buscar os dados do atleta.");
+
+                const dados = await resposta.json();
+                dataFormatada = formatarData(dados.data_nasc)
+
+                // Exibir os dados na tela
+                document.getElementById("dadosAtleta").innerHTML = `
+                    <p><strong>Nome:</strong> ${dados.nome}</p>
+                    <p><strong>CPF:</strong> ${dados.cpf}</p>
+                    <p><strong>Data de Nascimento:</strong> ${dataFormatada}</p>
+                    <p><strong>Email:</strong> ${dados.email}</p>
+                    <p><strong>Sexo:</strong> ${dados.sexo}</p>
+                `;
+            } catch (erro) {
+                document.getElementById("dadosAtleta").innerText = "Erro ao carregar os dados do atleta.";
+                console.error(erro);
+            }
+        }
+        function formatarData(dataString) {
+            let data = new Date(dataString);
+            if (isNaN(data)) return "Data inválida";
+            let dia = String(data.getUTCDate()).padStart(2, '0');
+            let mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+            let ano = data.getUTCFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+        // Chamar a função para carregar os dados do atleta
+        carregarAtleta(idAtleta);
+        const idCorrida = 2;  // Definido como constante
+
+        // Função para buscar os dados da inscrição do atleta na corrida
+        async function carregarInscricao(idAtleta, idCorrida) {
+            const url = `${baseURL}/runIFG/corrida/${idCorrida}/inscricao/getByAtletaId/${idAtleta}`;
+
+            try {
+                const resposta = await fetch(url);
+
+                if (!resposta.ok) {
+                    throw new Error("Inscrição não encontrada");
+                }
+
+                const dados = await resposta.json();
+                idInscricao = parseInt(dados.id);
+                // Exibir os dados de inscrição na tela
+                document.getElementById("dadosInscricao").innerHTML = `
+                    <p><strong>ID da Inscrição:</strong> ${dados.id}</p>
+                    <p><strong>Atleta ID:</strong> ${dados.atleta_id}</p>
+                    <p><strong>Corrida ID:</strong> ${dados.corrida_id}</p>
+                    <p><strong>Categoria ID:</strong> ${dados.categoria_id}</p>
+                    <p><strong>Número:</strong> <span id="nroAtleta">${dados.numero}</span></p>
+                    <div id="respostaAlteraNro"></div>
+                    <p><strong>Hora de Largada:</strong> ${dados.hora_largada}</p>
+                    <p><strong>Hora de Chegada:</strong> ${dados.hora_chegada}</p>
+                    <p><strong>Classificação:</strong> ${dados.classificacao}</p>
+                    <p><strong>Status:</strong> ${dados.status}</p>
+                    <p><strong>Remover a inscrição (não pode ser desfeito!):</strong></p>
+                    <button onclick="removerInscricao()" id="btnDelete">Clique para excluir a inscrição</button>
+                    <div id="respostaDelete"></div>
+                `;
+                checaDadosInscricao();
+            } catch (erro) {
+                // Caso não encontre a inscrição ou outro erro
+                document.getElementById("dadosInscricao").innerHTML = `
+                    <p>Inscrição não encontrada para o atleta nesta corrida.</p>
+                    <div>
+                        <p><strong>Realizar a inscrição do atleta:</strong></p>
+                        <label for="categoria">Escolha a categoria:</label>
+                        <select id="categoria">
+                            <option value="0">Selecione</option>
+                            <option value="6">Geral 5km - cloud</option>
+                            <option value="7">Geral 10km - cloud</option>
+                            <option value="16">Geral 5km - local</option>
+                            <option value="18">Geral 10km - local</option>
+                        </select>
+                        <button onclick="inscreverAtleta()">Inscrever atleta</button>
+                        <div id="respostaInscricao"></div>
+                    </div>
+                `;
+                console.error(erro);
+            }
+        }
+
+        // Carregar os dados da inscrição
+        carregarInscricao(idAtleta, idCorrida);
+        function inscreverAtleta() {
+            // Obtém o ID da categoria selecionada no dropdown
+            const categoriaSelecionada = document.getElementById("categoria").value;
+            if (categoriaSelecionada != 0) {
+                // Definição dos dados da inscrição
+                const dadosInscricao = {
+                    "atleta_id": parseInt(idAtleta),
+                    "categoria_id": parseInt(categoriaSelecionada)
+                };
+
+                // URL do serviço
+                const url = `${baseURL}/runIFG/corrida/${idCorrida}/inscricao/createInscricao`;
+
+                // Configuração da requisição
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dadosInscricao)
+                })
+                    .then(response => response.json())  // Converter resposta para JSON
+                    .then(data => {
+                        console.log(data);
+                        // Verifica se houve sucesso na inscrição
+                        if (data.sucesso || data.status === "OK" || data.message) {
+                            document.getElementById("respostaInscricao").innerHTML =
+                                `<p style="color: green;">Inscrição realizada com sucesso! Aguarde recarregamento da página!</p>`;
+                            // Aguarda 2 segundos e recarrega a página
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            document.getElementById("respostaInscricao").innerHTML =
+                                `<p style="color: red;">Erro ao inscrever: ${data.mensagem || "Tente novamente."}</p>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erro na requisição:", error);
+                        document.getElementById("respostaInscricao").innerHTML =
+                            `<p style="color: red;">Erro ao conectar ao servidor.</p>`;
+                    });
+            }else{
+                document.getElementById("respostaInscricao").innerHTML =
+                            `<p style="color: red;">Selecione uma categoria!</p>`;
+            }
+        }
+        function checaDadosInscricao(){
+            const nroAtleta = document.getElementById("nroAtleta").innerText;
+            if (nroAtleta == "null"){
+                document.getElementById("nroAtleta").innerHTML =
+                    `<input type="text" id="nrAtleta" name="nrAtleta" placeholder="Informe um número"/><button onclick="salvarNumero()" id="btnSalvaNumero">Salvar Número</button>`;
+            }else{
+                document.getElementById("nroAtleta").innerHTML =
+                    `<input type="text" id="nrAtleta" name="nrAtleta" placeholder="Informe um número" value=${nroAtleta} /><button onclick="salvarNumero()" id="btnSalvaNumero">Salvar Número</button>`;
+            }
+        }
+        function salvarNumero(){
+            // Obtém os elementos do campo de texto e do botão
+            const inputNumero = document.getElementById("nrAtleta");
+            const botaoSalvar = document.getElementById("btnSalvaNumero");
+            const respostaElemento = document.getElementById("respostaAlteraNro");
+            // Desabilita os elementos antes de iniciar a requisição
+            inputNumero.disabled = true;
+            botaoSalvar.disabled = true;
+            // Obtém o número informado no campo de texto
+            const numeroAtleta = inputNumero.value.trim();
+
+            // Verifica se o campo está vazio
+            if (!numeroAtleta) {
+                respostaElemento.innerHTML = `<p style="color: red;">Informe um número antes de salvar.</p>`;
+                inputNumero.disabled = false;
+                botaoSalvar.disabled = false;
+                return;
+            }
+            const urlUpdate = `${baseURL}/runIFG/inscricao/updateNumero/${idInscricao}`;
+
+            // Corpo da requisição
+            const dadosNumero = {
+                numero: numeroAtleta
+            };
+
+            // Chamada ao serviço
+            fetch(urlUpdate, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dadosNumero)
+            })
+            .then(response => response.json()) // Converte resposta para JSON
+            .then(data => {
+                console.log(data);
+                // Verifica se a atualização foi bem-sucedida
+                if (data.sucesso || data.status === "OK" || data.message) {
+                    respostaElemento.innerHTML =
+                        `<p style="color: green;">Número atualizado com sucesso!</p>`;
+                } else {
+                    respostaElemento.innerHTML =
+                        `<p style="color: red;">Erro ao atualizar número: ${data.error || "Tente novamente."}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Erro na requisição:", error);
+                respostaElemento.innerHTML =
+                    `<p style="color: red;">Erro ao conectar ao servidor.</p>`;
+            })
+            .finally(() => {
+                // Reabilita os elementos após a requisição (independente do resultado)
+                inputNumero.disabled = false;
+                botaoSalvar.disabled = false;
+            });
+        }
+        function removerInscricao(){
+            if (confirm("Confirma a exclusão da inscrição?")) {
+                document.getElementById("btnDelete").disabled = true;
+                const urlDelete = `${baseURL}/runIFG/inscricao/deleteInscricao/${idInscricao}`;
+                // Chamada ao serviço
+                fetch(urlDelete, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => response.json()) // Converte resposta para JSON
+                .then(data => {
+                    console.log(data);
+                    // Verifica se a atualização foi bem-sucedida
+                    if (data.sucesso || data.status === "OK" || data.message) {
+                        document.getElementById("respostaDelete").innerHTML =
+                            `<p style="color: green;">Inscrição removida com sucesso! Aguarde o recarregamento!</p>`;
+                        // Aguarda 2 segundos e recarrega a página
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                    } else {
+                        document.getElementById("respostaDelete").innerHTML =
+                            `<p style="color: red;">Erro ao excluir inscrição: ${data.error || "Tente novamente."}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro na requisição:", error);
+                    document.getElementById("respostaDelete").innerHTML =
+                        `<p style="color: red;">Erro ao conectar ao servidor.</p>`;
+                })
+                .finally(() => {
+                    document.getElementById("btnDelete").disabled = false;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
